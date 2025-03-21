@@ -1,12 +1,12 @@
 #version 300 es
 precision mediump float;
 
-#define PI 3.14159265359
+#define MAX_ITER 100
 
 /**
  * \file
  * \author Rudy Castan
- * \author Jaejin Chae
+ * \author seokhwa hong
  * \date 2025 Spring
  * \par CS250 Computer Graphics II
  * \copyright DigiPen Institute of Technology
@@ -17,21 +17,18 @@ uniform float u_time;
 
 out vec4 fragColor;
 
-float plot(vec2 st, float pct){
-  return  smoothstep( pct-0.01, pct, st.y) -
-          smoothstep( pct, pct+0.01, st.y);
-}
+void main() {
+    vec2 st = (gl_FragCoord.xy / u_resolution) * 2.0 - 1.0;
+    st.x *= u_resolution.x / u_resolution.y;
 
-void main()
-{
-    vec2 st = gl_FragCoord.xy/u_resolution;
+    vec2 z = st;
+    int iter;
 
-    float y = sin((st.x * PI)) + cos((st.x * PI));
+    for (iter = 0; iter < 50; iter++) { 
+        if (dot(z, z) > 4.0) break;  
+        z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + st;
+    }
 
-    vec3 color = vec3(y);
-
-    float pct = plot(st, y);
-    color = (1.0-pct)*color+pct*vec3(0.0706, 0.0824, 0.8314);
-
-    fragColor = vec4(color, 1.0);
+    float color = float(iter) / 50.0;  
+    fragColor = vec4(vec3(color), 1.0);
 }
